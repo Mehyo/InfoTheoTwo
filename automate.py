@@ -2,13 +2,11 @@ import automaton
 
 
 def completer(aut):
+	"Complete un automate non complet et ne modifie pas un automate complet"
 
 	aut_complet = aut.clone()
 	
 	puit = (aut_complet.get_maximal_id()+1)
-	print(puit)
-	aut_complet.add_state(puit)
-	aut_complet.display()
 	
 	alpha = list( aut_complet.get_alphabet() )
 	states = list( aut_complet.get_states() )
@@ -16,6 +14,8 @@ def completer(aut):
 	for i in range( len( alpha ) ):
 		for j in range( len( states ) ):
 			if not aut_complet.delta( alpha[i], [states[j]] ):
+				if not alpha(len(alpha)-1) == puit:
+						aut_complet.add_state(puit)
 				aut_complet.add_transition( (states[j], alpha[i], puit) )
 
 	return aut_complet
@@ -70,15 +70,14 @@ def analyseur(chaine):
 def main():
 	aut = automaton.automaton (
 		epsilons = [ '0 '],
-		states = [5] , initials = [0,1] , finals = [3,4],
-		transitions = [(0 , 'a' ,1) , (1 , 'b' ,2) , (2 , 'b' ,2) , (2 , '0' ,3) ,(3 , 'a' ,4)]
+		states = [2] , initials = [0] , finals = [3],
+		transitions = [(0 , 'a' ,1) , (0 , 'b' ,1) , (1 , 'a' ,2) , (1 , 'b' ,2) , (2 , 'a' ,3) , (2 , 'b' ,3) , (3 , 'a' ,2) , (3 , 'b' ,2)]
 	)
 	#aut_miroir = miroir(aut)
 	#aut_miroir.display()
 
 	aut_complet = completer(aut)
 	aut.display()
-	aut_complet.remove_epsilon_transitions()
 	aut_complet.display()
 
 
