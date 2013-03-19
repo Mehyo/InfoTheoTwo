@@ -2,6 +2,37 @@ import automaton
 
 
 def completer(aut):
+	states = list(aut.get_states())
+	transitions = list(aut.get_transitions())
+	alphabet = list(aut.get_alphabet())
+	aut.add_state('P')
+	print(states)
+	print(transitions)
+	print(alphabet)
+
+	i = 0
+	j = 0
+	k = 0
+	while i < len(states):
+		#print(i)
+		print(states[i])
+		while j < len(alphabet):
+			#print(j)
+			#print(alphabet[j])
+			while k < len(transitions):
+				#print(k)
+				if (transitions[k][0] == states[i]) & (transitions[k][1] == alphabet[j]):
+					break
+				if(k == len(transitions) - 1):
+					aut.add_transition((states[i], alphabet[j], 'P'))
+				k+=1
+			j+=1
+		i+=1
+
+
+	aut.display()
+	#aut1.display()
+
 	return aut
 
 def union(aut1, aut2):
@@ -59,9 +90,9 @@ def main():
 	states = [1] , initials = [0] , finals = [2] ,
 	transitions = [(0 , 'a ' ,1) , (1 , 'b ' ,2)]
 	)
-	aut_miroir = miroir(aut1)
-	aut1.display()
-	aut_miroir.display()
+	aut_miroir = completer(aut1)
+	#aut1.display()
+	#aut_miroir.display()
 
 
 main()
