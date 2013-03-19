@@ -5,33 +5,33 @@ def completer(aut):
 	states = list(aut.get_states())
 	transitions = list(aut.get_transitions())
 	alphabet = list(aut.get_alphabet())
+	epsilons = list(aut.get_epsilons())
 	aut.add_state('P')
-	print(states)
-	print(transitions)
-	print(alphabet)
 
 	i = 0
 	j = 0
 	k = 0
+
 	while i < len(states):
-		#print(i)
-		print(states[i])
 		while j < len(alphabet):
-			#print(j)
-			#print(alphabet[j])
+			if (alphabet[j] in epsilons):
+				j+=1
 			while k < len(transitions):
-				#print(k)
 				if (transitions[k][0] == states[i]) & (transitions[k][1] == alphabet[j]):
 					break
-				if(k == len(transitions) - 1):
-					aut.add_transition((states[i], alphabet[j], 'P'))
+				else:
+					if(k == len(transitions) - 1):
+						aut.add_transition((states[i], alphabet[j], 'P'))
 				k+=1
 			j+=1
+			k = 0
 		i+=1
+		j = 0
 
-
-	aut.display()
-	#aut1.display()
+	for t in alphabet:
+		if t in epsilons:
+			continue
+		aut.add_transition(('P', t, 'P'))
 
 	return aut
 
@@ -86,13 +86,14 @@ def analyseur(chaine):
 
 def main():
 	aut1 = automaton . automaton (
-	epsilons = [ '0 '] ,
+	epsilons = ['0'],
 	states = [1] , initials = [0] , finals = [2] ,
 	transitions = [(0 , 'a ' ,1) , (1 , 'b ' ,2)]
 	)
-	aut_miroir = completer(aut1)
-	#aut1.display()
-	#aut_miroir.display()
+	aut1.display()
+	aut_completer = completer(aut1)
+	aut_completer.display()
+	
 
 
 main()
