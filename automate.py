@@ -20,14 +20,12 @@ def completer(aut):
 
 	return aut_complet
 
-def union(aut1, aut2):
-	return aut_union
 
-def intersection(aut1, aut2):
+def uninter(aut1, aut2, type):
 
 	alpha = list( aut1.get_alphabet() )
 
-	aut_inter = automaton.automaton ( 
+	aut = automaton.automaton ( 
 		alphabet = alpha,
 		epsilons = [ '0 '],
 	)
@@ -45,14 +43,30 @@ def intersection(aut1, aut2):
 				if tmp1 and tmp2 :
 					for l in range (len (tmp1)):
 						for m in range (len (tmp2)):
-							if not aut_inter.has_state( (states1[j], states2[k]) ):
-								aut_inter.add_state((states1[j], states2[k]))
-							if aut1.state_is_final((states1[j])) and aut2.state_is_final((states2[k])):
-								aut_inter.add_final_state((states1[j], states2[k]))
-							if aut1.state_is_initial((states1[j])) and aut2.state_is_initial((states2[k])):
-								aut_inter.add_initial_state((states1[j], states2[k]))
-							aut_inter.add_transition( ((states1[j],states2[k]), alpha[i], (tmp1[l], tmp2[l]) ))
+							if not aut.has_state( (states1[j], states2[k]) ):
+								aut.add_state((states1[j], states2[k]))
+
+							if type > 0:
+								if aut1.state_is_final((states1[j])) or aut2.state_is_final((states2[k])):
+									aut.add_final_state((states1[j], states2[k]))
+							else :
+								if aut1.state_is_final((states1[j])) and aut2.state_is_final((states2[k])):
+									aut.add_final_state((states1[j], states2[k]))
+
+							if aut1.state_is_initial((states1[j])) and aut2.state_is_initial((states2[k])):	
+								aut.add_initial_state((states1[j], states2[k]))
+							aut.add_transition( ((states1[j],states2[k]), alpha[i], (tmp1[l], tmp2[l]) ))
+	return aut
 	
+
+def union(aut1, aut2):
+
+	aut_union = uninter(aut1, aut2, 1)
+	return aut_union
+
+def intersection(aut1, aut2):
+
+	aut_inter = uninter(aut1, aut2, 0)
 	return aut_inter
 
 def miroir(aut):
@@ -111,18 +125,10 @@ def main():
 	)
 
 	aut_inter = intersection(aut1, aut2)
+	aut_union = union(aut1, aut2)
 
-	# aut1.display(wait=False)
-	# aut2.display(wait=False)
 	aut_inter.display(wait=False)
-
-
-	# aut.display(wait=False)
-	# aut_miroir = miroir(aut)
-	# aut_miroir.display(wait=False)
-
-	# aut_complet = completer(aut)
-	# aut_complet.display(wait=False)
+	aut_union.display(wait=False)
 
 
 main()	
