@@ -14,7 +14,7 @@ def completer(aut):
 	for i in range( len( alpha ) ):
 		for j in range( len( states ) ):
 			if not aut_complet.delta( alpha[i], [states[j]] ):
-				if not alpha(len(alpha)-1) == puit:
+				if not alpha[len(alpha)-1] == puit:
 						aut_complet.add_state(puit)
 				aut_complet.add_transition( (states[j], alpha[i], puit) )
 
@@ -24,6 +24,35 @@ def union(aut1, aut2):
 	return aut_union
 
 def intersection(aut1, aut2):
+
+	alpha = list( aut1.get_alphabet() )
+
+	aut_inter = automaton.automaton ( 
+		alphabet = alpha,
+		epsilons = [ '0 '],
+	)
+
+	states1 = list( aut1.get_states() )	
+	states2 = list( aut2.get_states() )
+	transitions1 = list( aut1.get_transitions() )
+	transitions2 = list( aut2.get_transitions() )
+	
+	for i in range (len (alpha) ):
+		for j in range (len (states1) ):
+			for k in range (len (states2) ):
+				tmp1 = list( aut1.delta( alpha[i], [states1[j]]) )
+				tmp2 = list( aut2.delta( alpha[i], [states2[k]]) )
+				if tmp1 and tmp2 :
+					for l in range (len (tmp1)):
+						for m in range (len (tmp2)):
+							if not aut_inter.has_state( (states1[j], states2[k]) ):
+								aut_inter.add_state((states1[j], states2[k]))
+							if aut1.state_is_final((states1[j])) and aut2.state_is_final((states2[k])):
+								aut_inter.add_final_state((states1[j], states2[k]))
+							if aut1.state_is_initial((states1[j])) and aut2.state_is_initial((states2[k])):
+								aut_inter.add_initial_state((states1[j], states2[k]))
+							aut_inter.add_transition( ((states1[j],states2[k]), alpha[i], (tmp1[l], tmp2[l]) ))
+	
 	return aut_inter
 
 def miroir(aut):
@@ -68,17 +97,32 @@ def analyseur(chaine):
 
 
 def main():
-	aut = automaton.automaton (
-		epsilons = [ '0 '],
-		states = [2] , initials = [0] , finals = [3],
-		transitions = [(0 , 'a' ,1) , (0 , 'b' ,1) , (1 , 'a' ,2) , (1 , 'b' ,2) , (2 , 'a' ,3) , (2 , 'b' ,3) , (3 , 'a' ,2) , (3 , 'b' ,2)]
+	aut1 = automaton.automaton (
+		alphabet = ['a', 'b', 'c'],
+		states = [2] , initials = [1] , finals = [2],
+		transitions = [(1 , 'a' ,1) , (1 , 'b' ,1) , (1 , 'c' ,2) , (2 , 'a' ,2) , (2 , 'b' ,2) , (2 , 'c' ,2)]
 	)
-	#aut_miroir = miroir(aut)
-	#aut_miroir.display()
 
-	aut_complet = completer(aut)
-	aut.display()
-	aut_complet.display()
+	aut2 = automaton.automaton (
+		alphabet = ['a', 'b', 'c'],
+		states = [3] , initials = [1] , finals = [3],
+		transitions = [(1 , 'a' ,1) , (1 , 'c' ,1) , (1 , 'b' ,2) , (2 , 'a' ,3) , (2 , 'b' ,2) , (2 , 'c' ,1),
+			(3 , 'a' ,3) , (3 , 'b' ,3) , (3 , 'c' ,3)]
+	)
+
+	aut_inter = intersection(aut1, aut2)
+
+	# aut1.display(wait=False)
+	# aut2.display(wait=False)
+	aut_inter.display(wait=False)
+
+
+	# aut.display(wait=False)
+	# aut_miroir = miroir(aut)
+	# aut_miroir.display(wait=False)
+
+	# aut_complet = completer(aut)
+	# aut_complet.display(wait=False)
 
 
 main()	
