@@ -88,6 +88,43 @@ def miroir(aut):
 	return aut_mirror
 
 def determinisation(aut):
+	alphabet = list(aut.get_alphabet())
+	initials_states = aut.get_initial_states()
+	final_states = aut.get_final_states()
+
+	file_sommet = [initials_states]
+	liste_nouveaux_sommet = [initials_states]
+
+	liste_transitions = []
+
+	while len(file_sommet) != 0:
+		for i in alphabet:
+			if aut.delta(i, file_sommet[0]):
+				sommet = aut.delta(i, file_sommet[0])
+				liste_transitions += [(file_sommet[0], i, sommet)]
+				if not sommet in liste_nouveaux_sommet:
+					liste_nouveaux_sommet += [sommet]
+					file_sommet += [sommet]
+		file_sommet.pop(0)
+
+
+	final = []
+	for i in liste_nouveaux_sommet:
+		for j in i:
+			if j in final_states:
+				final += [i]
+
+
+	aut_deter = automaton.automaton (
+		initials = [initials_states],
+		finals = final,
+		alphabet = alphabet,
+		epsilons = [ '0 '],
+		states = liste_nouveaux_sommet,
+		transitions = liste_transitions
+		)
+
+	aut_deter.display()
 	return aut_deter
 
 def complement(aut):
@@ -111,7 +148,7 @@ def analyseur(chaine):
 
 
 def main():
-	aut1 = automaton.automaton (
+	"""aut1 = automaton.automaton (
 		alphabet = ['a', 'b', 'c'],
 		states = [2] , initials = [1] , finals = [2],
 		transitions = [(1 , 'a' ,1) , (1 , 'b' ,1) , (1 , 'c' ,2) , (2 , 'a' ,2) , (2 , 'b' ,2) , (2 , 'c' ,2)]
@@ -128,7 +165,14 @@ def main():
 	aut_union = union(aut1, aut2)
 
 	aut_inter.display(wait=False)
-	aut_union.display(wait=False)
+	aut_union.display(wait=False)"""
+	aut = automaton.automaton (
+		states = [2] , initials = [0] , finals = [1,2],
+		transitions = [(0 , 'a' ,1) , (0 , 'b' ,1) , (0 , 'b' ,2), (1 , 'a' ,0), (1 , 'a' ,2), (2 , 'a' ,2)]
+		)
+
+	#aut.display(wait="false")
+	aut_deter = determinisation(aut)
 
 
 main()	
