@@ -1,5 +1,6 @@
 import automaton
 
+operator = list(("+", ".", "*", "(", ")"))
 
 def completer(aut):
 	"Complete un automate non complet et ne modifie pas un automate complet"
@@ -131,10 +132,101 @@ def complement(aut):
 	return aut_comp
 
 def minimiser(aut):
-	return aut_mini
+	return aut
 
 def expression_vers_automate(E):
-	return aut
+
+	liste = list ()
+	get_expression(E, liste)
+
+	aut = automaton.automaton (
+			epsilons = ['0']
+		)
+
+	alphabet = list()
+	states = list()
+	
+	while len(liste) > 0 :
+		cmpt = liste.pop()
+	 	print(cmpt)
+		if not operator.count(cmpt):
+			alphabet.append(cmpt)
+			if not aut.get_maximal_id():
+				i=0
+			else:
+				i = aut.get_maximal_id() 
+				i+=1
+			j=i+1	
+			aut.add_transition( (i, cmpt, j) )
+			states.append([i, j])
+		else : 
+			if cmpt == "+":
+				states.append( plus(aut, states.pop(), states.pop()) )
+			if cmpt == ".":
+				states.append( produit(aut, states.pop(), states.pop()) )
+			if cmpt == "*":
+				states.append( star(aut, states.pop()) )
+
+	aut = automaton.automaton(
+		alphabet = alphabet,
+		epsilons = ['0'],
+		states = aut.get_states(), initials = aut.get_initial_states(), finals = aut.get_final_states(),
+		transitions = aut.get_transitions()
+	)
+
+	return minimiser(aut)
+
+
+def get_expression(E, liste):
+	l = E
+	while len(l) > 1:
+		liste.append( l.pop(0))
+		if len (l) > 0:
+			get_expression(l.pop(0), liste )
+			if len (l) > 0:
+				get_expression(l.pop(0), liste )
+	if len (l) > 0:
+		liste.append( l[0] )
+
+
+def	plus(aut, state1, state2):
+	i = aut.get_maximal_id()
+	i+=1
+	aut.add_initial_state(i)
+	j = aut.get_maximal_id()
+	j+=1
+	aut.add_final_state(j)
+	
+	aut.add_transitions([(i, '0', state1[0]), (state1[1], '0', j)])
+	aut.add_transitions([(i, '0', state2[0]), (state2[1], '0', j)])
+
+	return ([i, j])
+
+
+def	produit(aut, state1, state2):
+	i = aut.get_maximal_id()
+	i+=1
+	aut.add_initial_state(i)
+	j = aut.get_maximal_id()
+	j+=1
+	aut.add_final_state(j)
+
+	aut.add_transitions([(i, '0', state1[0]) , (state1[1], '0', state2[0]), (state2[1], '0', j)])
+	
+	return ([i, j])
+
+
+def	star(aut, state):
+	i = aut.get_maximal_id()
+	i+=1
+	aut.add_initial_state(i)
+	j = aut.get_maximal_id()
+	j+=1
+	aut.add_final_state(j)
+
+	aut.add_transitions([(i, '0', state[0]), (state[1], '0', j) , (state[1], '0', state[0]), (i, '0', j) ])
+
+	return ([i, j])
 
 
 "Un au choix"
@@ -148,31 +240,35 @@ def analyseur(chaine):
 
 
 def main():
-	"""aut1 = automaton.automaton (
-		alphabet = ['a', 'b', 'c'],
-		states = [2] , initials = [1] , finals = [2],
-		transitions = [(1 , 'a' ,1) , (1 , 'b' ,1) , (1 , 'c' ,2) , (2 , 'a' ,2) , (2 , 'b' ,2) , (2 , 'c' ,2)]
-	)
+	# aut1 = automaton.automaton (
+	# 	alphabet = ['a', 'b', 'c'],
+	# 	states = [2] , initials = [1] , finals = [2],
+	# 	transitions = [(1 , 'a' ,1) , (1 , 'b' ,1) , (1 , 'c' ,2) , (2 , 'a' ,2) , (2 , 'b' ,2) , (2 , 'c' ,2)]
+	# )
 
-	aut2 = automaton.automaton (
-		alphabet = ['a', 'b', 'c'],
-		states = [3] , initials = [1] , finals = [3],
-		transitions = [(1 , 'a' ,1) , (1 , 'c' ,1) , (1 , 'b' ,2) , (2 , 'a' ,3) , (2 , 'b' ,2) , (2 , 'c' ,1),
-			(3 , 'a' ,3) , (3 , 'b' ,3) , (3 , 'c' ,3)]
-	)
+	# aut2 = automaton.automaton (
+	# 	alphabet = ['a', 'b', 'c'],
+	# 	states = [3] , initials = [1] , finals = [3],
+	# 	transitions = [(1 , 'a' ,1) , (1 , 'c' ,1) , (1 , 'b' ,2) , (2 , 'a' ,3) , (2 , 'b' ,2) , (2 , 'c' ,1),
+	# 		(3 , 'a' ,3) , (3 , 'b' ,3) , (3 , 'c' ,3)]
+	# )
 
-	aut_inter = intersection(aut1, aut2)
-	aut_union = union(aut1, aut2)
+	# aut_inter = intersection(aut1, aut2)
+	# aut_union = union(aut1, aut2)
 
-	aut_inter.display(wait=False)
-	aut_union.display(wait=False)"""
-	aut = automaton.automaton (
-		states = [2] , initials = [0] , finals = [1,2],
-		transitions = [(0 , 'a' ,1) , (0 , 'b' ,1) , (0 , 'b' ,2), (1 , 'a' ,0), (1 , 'a' ,2), (2 , 'a' ,2)]
-		)
+	# aut_inter.display(wait=False)
+	# aut_union.display(wait=False)
+	# aut = automaton.automaton (
+	# 	states = [2] , initials = [0] , finals = [1,2],
+	# 	transitions = [(0 , 'a' ,1) , (0 , 'b' ,1) , (0 , 'b' ,2), (1 , 'a' ,0), (1 , 'a' ,2), (2 , 'a' ,2)]
+	# 	)
 
-	#aut.display(wait="false")
-	aut_deter = determinisation(aut)
+	# #aut.display(wait="false")
+	# aut_deter = determinisation(aut)
 
+	E = list( ["*", ["+", ["a", [".", ["*","b"], ["a"]]]]])
+	aut = expression_vers_automate(E)
+	aut.display(wait = False)
 
 main()	
+
