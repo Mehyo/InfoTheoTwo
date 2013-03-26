@@ -81,7 +81,7 @@ def miroir(aut):
 
 	aut_mirror = automaton.automaton (
 		alphabet = aut.get_alphabet(),
-		epsilons = [ '0 '],
+		epsilons = aut.get_epsilons(),
 		states = aut.get_states() , initials = aut.get_final_states() , finals = aut.get_initial_states(),
 		transitions = new_transitions
 	)
@@ -120,19 +120,23 @@ def determinisation(aut):
 		initials = [initials_states],
 		finals = final,
 		alphabet = alphabet,
-		epsilons = [ '0 '],
+		epsilons = aut.get_epsilons(),
 		states = liste_nouveaux_sommet,
 		transitions = liste_transitions
 		)
 
-	aut_deter.display()
+	
 	return aut_deter
 
 def complement(aut):
 	return aut_comp
 
 def minimiser(aut):
-	return aut
+	aut_min = miroir(aut)
+	aut_min = determinisation(aut_min)
+	aut_min = miroir(aut_min)
+	aut_min = determinisation(aut_min)
+	return aut_min
 
 def expression_vers_automate(E):
 
@@ -266,9 +270,20 @@ def main():
 	# #aut.display(wait="false")
 	# aut_deter = determinisation(aut)
 
-	E = list( ["*", ["+", ["a", [".", ["*","b"], ["a"]]]]])
-	aut = expression_vers_automate(E)
-	aut.display(wait = False)
+	"""E = list( ["*", ["+", ["a", [".", ["*","b"], ["a"]]]]])
+	aut = expression_vers_automate(E)"""
+
+	aut = automaton.automaton (
+	 	alphabet = ['a', 'b'],
+	 	states = [7] , initials = [0] , finals = [2],
+		transitions = [(0 , 'a' ,1), (0 , 'b' ,5), (1 , 'b' ,2), (2 , 'b' ,2), (2 , 'a' ,3), (3 , 'b' ,6), (4 , 'b' ,5), (4 , 'a' ,7), (5 , 'a' ,2), (5 , 'b' ,6), (6 , 'b' ,4), (6 , 'a' ,7),(7 , 'b' ,2)]
+	 )
+	aut = aut.get_renumbered_automaton()
+	
+	aut_min = minimiser(aut)
+	aut_min = aut_min.get_renumbered_automaton()
+	#aut.display(wait = False)
+	aut_min.display()
 
 main()	
 
