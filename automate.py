@@ -19,6 +19,11 @@ def completer(aut):
 						aut_complet.add_state(puit)
 				aut_complet.add_transition( (states[j], alpha[i], puit) )
 
+
+	for i in alpha:
+		aut_complet.add_transition((puit, i, puit))
+
+
 	return aut_complet
 
 
@@ -116,6 +121,7 @@ def determinisation(aut):
 				final += [i]
 
 
+
 	aut_deter = automaton.automaton (
 		initials = [initials_states],
 		finals = final,
@@ -129,7 +135,27 @@ def determinisation(aut):
 	return aut_deter
 
 def complement(aut):
-	return aut_comp
+	aut_complet = completer(aut)
+	aut_deter = determinisation(aut_complet)
+	
+	states = aut_deter.get_states()
+	finals_states = [] 
+
+	for i in states:
+		if not aut_deter.state_is_final(i):
+			finals_states.append(i)
+
+	
+	aut_compl = automaton.automaton (
+		initials = aut_deter.get_initial_states(),
+		finals = finals_states,
+		alphabet = aut_deter.get_alphabet(),
+		epsilons = aut_deter.get_epsilons(),
+		states = aut_deter.get_states(),
+		transitions = aut_deter.get_transitions()
+		)
+
+	return aut_compl
 
 def minimiser(aut):
 	aut_min = miroir(aut)
@@ -396,13 +422,13 @@ def main():
 	# aut.display(wait="false")
 	# aut_deter = determinisation(aut)
 
-	E = list( ["*", ["+", ["a", [".", ["*","b"], ["a"]]]]])
-	aut = expression_vers_automate(E)
-	aut.display(wait=False)
+	#E = list( ["*", ["+", ["a", [".", ["*","b"], ["a"]]]]])
+	#aut = expression_vers_automate(E)
+	#aut.display(wait=False)
 
-	E1 = analyseur("(a+b*a)*")
-	aut1 = expression_vers_automate(E1)
-	aut1.display(wait=False)
+	#E1 = analyseur("(a+b*a)*")
+	#aut1 = expression_vers_automate(E1)
+	#aut1.display(wait=False)
 
 	# aut = automaton.automaton (
 	#  	alphabet = ['a', 'b'],
@@ -415,6 +441,15 @@ def main():
 	# aut_min = aut_min.get_renumbered_automaton()
 	# #aut.display(wait = False)
 	# aut_min.display()
+
+	 aut = automaton.automaton (
+	  	alphabet = ['a', 'b'],
+	  	states = [3] , initials = [0] , finals = [2,3],
+	 	transitions = [(0 , 'a' ,1), (1 , 'b' ,2), (2 , 'a' ,3)]
+	 	)
+	 aut.display(wait = False)
+	 aut_compl = complement(aut)
+	 aut_compl.display(wait = False)
 
 main()
 
